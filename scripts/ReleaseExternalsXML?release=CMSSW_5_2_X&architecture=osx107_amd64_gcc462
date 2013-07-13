@@ -1,0 +1,5 @@
+<externals>
+  <external external="CMSDIST" tag="sm121113-52X-osx107" />
+  <external external="PKGTOOLS" tag="V00-21-05" />
+</externals>
+

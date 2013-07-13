@@ -1,0 +1,34 @@
+Index: autoIB.py
+===================================================================
+--- autoIB.py	(revision 2496)
++++ autoIB.py	(working copy)
+@@ -36,6 +36,7 @@
+   parser.add_option("--jobs", "-j", type="int", metavar="N", dest="jobs", help="Number of parallel building threads", default=1)
+   parser.add_option("--builders", type="int", metavar="N", dest="builders", help="Number of packages built in parallel", default=1)
+   parser.add_option("--debug", metavar="PATH", dest="debug", help="Print out what's happening", action="store_true", default=False)
++  parser.add_option("--dry-run", "-n", metavar="BOOL", dest="dryRun", help="Do not execute", action="store_true", default=False)
+   opts, args = parser.parse_args()
+   if not opts.workdir:
+     print "Please specify a workdir"
+@@ -43,7 +44,9 @@
+   opts.workdir = abspath(opts.workdir)
+   lockPath = join(opts.workdir, "b", ".cmsLock")
+   lock = Lock(lockPath, True)
+-  if lock:
++  if not lock:
++    if opts.debug:
++      print "Lock found in %s" % lockPath
+     sys.exit(1)
+   lock.__del__()
+     
+@@ -65,6 +68,10 @@
+     print "Unknown task for request %s: %s" % (task["id"], buildTask)
+     sys.exit(1)
+ 
++  if opts.dryRun:
++    print "Dry run. Not building"
++    sys.exit(1)
++
+   ok = tagCollectorAPI.setRequestBuilding(request_id=task["id"], release_name=task["release_name"], machine=socket.gethostname(), pid=os.getpid())
+   if not ok:
+     print "Could not change request %s state to building" % task["id"]

@@ -1,0 +1,303 @@
+#!/usr/bin/env python
+ 
+import os, sys, time, threading
+
+scriptPath = os.path.dirname( os.path.abspath(sys.argv[0]) )
+if scriptPath not in sys.path:
+    sys.path.append(scriptPath)
+
+from BuilderBase import BuilderBase, ActionError
+
+
+# ================================================================================
+
+class LogUpdater(BuilderBase):
+
+    def __init__(self, dirIn=None, doCopy=True):
+
+        BuilderBase.__init__(self)
+    
+        if dirIn:
+            if not os.path.exists(dirIn):
+                raise "ERROR: build dir ", dirIn, 'does not exist.'
+
+        self.buildDir = dirIn
+        self.release = None
+        self.webTargetDir = None
+	self.doCopy = doCopy
+ 
+        return
+    
+    # --------------------------------------------------------------------------------
+
+    def setRelease(self, rel, cycle, stamp):
+
+        self.release  = rel
+        self.relCycle = cycle
+        self.stamp    = stamp
+        
+        from makeWebLog import WebLogger
+        
+        try:
+            wl = WebLogger(self.stamp[:3], self.relCycle, self.dryRun) # pass in "day" as this may be late
+            wl.prepare(self.release, self.relCycle+'-'+self.stamp, self.tcTag)
+            self.webTargetDir = wl.getWebLogDir()
+        except Exception, e:
+            print "ERROR: Caught exception when getting info from  weblogger : " + str(e)
+
+        return
+    
+    # --------------------------------------------------------------------------------
+
+    def updateUnitTestLogs(self):
+        
+        print "\n--> going to copy unit test logs to", self.webTargetDir, '... \n'
+        # copy back the test and relval logs to the install area
+        # check size first ... sometimes the log _grows_ to tens of GB !!
+        testLogs = ['unitTests.log', 'unitTests-summary.log','unitTestResults.pkl']
+        for tl in testLogs:
+            self.copyLogs(tl, '.', self.webTargetDir,False,self.cmsswBuildDir)
+            self.copyLogs(tl, '.', os.path.join( self.webTargetDir, 'testLogs'),False,self.cmsswBuildDir)
+
+        self.updateSplitUnitTestLogs()
+	return
+
+    # --------------------------------------------------------------------------------
+
+    def updateSplitUnitTestLogs(self):
+
+        print "\n--> going to copy individual unit test logs to", self.webTargetDir, '... \n'
+        subDir = 'unitTestLogs'
+
+        self.copyLogs('[A-Z]*/*/unitTest.log'  , subDir, os.path.join(self.webTargetDir, 'unitTestLogs'), True,self.cmsswBuildDir)
+
+        return
+        
+     # --------------------------------------------------------------------------------
+
+    def updateGeomTestLogs(self):
+        
+        print "\n--> going to copy Geom test logs to", self.webTargetDir, '... \n'
+        testLogs = ['dddreport.log', 'domcount.log']
+        for tl in testLogs:
+            self.copyLogs(tl, '.', self.webTargetDir,False,self.cmsswBuildDir)
+            self.copyLogs(tl, '.', os.path.join( self.webTargetDir, 'testLogs'),False,self.cmsswBuildDir)
+
+        return
+
+    # --------------------------------------------------------------------------------
+
+    def updateDupDictTestLogs(self):
+        
+        print "\n--> going to copy dup dict test logs to", self.webTargetDir, '... \n'
+        testLogs = ['dupDict-*.log']
+        for tl in testLogs:
+            self.copyLogs(tl, '.', self.webTargetDir,False,self.cmsswBuildDir)
+            self.copyLogs(tl, '.', os.path.join( self.webTargetDir, 'testLogs'),False,self.cmsswBuildDir)
+
+        return
+
+   # --------------------------------------------------------------------------------
+
+    def updateLogFile(self,fileIn,subTrgDir=None):
+        
+        desdir =  self.webTargetDir
+        if subTrgDir: desdir = os.path.join(desdir, subTrgDir)
+        print "\n--> going to copy "+fileIn+" log to ", desdir, '... \n'
+        self.copyLogs(fileIn,'.', desdir,False,self.cmsswBuildDir)
+
+        return
+
+    # --------------------------------------------------------------------------------
+
+    def updateCodeRulesCheckerLogs(self):
+        
+        print "\n--> going to copy cms code rules logs to", self.webTargetDir, '... \n'
+        self.copyLogs('codeRules', '.',self.webTargetDir,True,self.cmsswBuildDir)
+
+        return
+
+    # --------------------------------------------------------------------------------
+
+    def updateRelValMatrixLogs(self):
+
+        print "\n--> going to copy pyrelval matrix logs to", self.webTargetDir, '... \n'
+        subDir = 'pyRelval/'
+        self.copyLogs('*/*[lL]og'  , subDir, os.path.join(self.webTargetDir, 'pyRelValMatrixLogs/run'), True,self.cmsswBuildDir)
+        self.copyLogs('runall*.log', subDir, os.path.join(self.webTargetDir, 'pyRelValMatrixLogs/run'),False,self.cmsswBuildDir)
+        self.copyLogs('*.pkl'      , subDir, os.path.join(self.webTargetDir, 'pyRelValMatrixLogs/run'),False,self.cmsswBuildDir)
+
+        return
+        
+    # --------------------------------------------------------------------------------
+
+    def updateAddOnTestsLogs(self):
+
+        print "\n--> going to copy addOn logs to", self.webTargetDir, '... \n'
+        self.copyLogs('addOnTests.log' ,'.',self.webTargetDir, False,self.cmsswBuildDir)
+        self.copyLogs('*' ,'addOnTests/logs',os.path.join(self.webTargetDir, 'addOnTests/logs'), True,self.cmsswBuildDir)
+
+        return
+        
+    # --------------------------------------------------------------------------------
+
+    def updateIgnominyLogs(self):
+
+        print "\n--> going to copy ignominy logs to", self.webTargetDir, '... \n'
+        testLogs = ['dependencies.txt.gz','products.txt.gz','logwarnings.gz','metrics']
+        for tl in testLogs:
+            self.copyLogs(tl, 'igRun', os.path.join( self.webTargetDir, 'igRun'),False,self.cmsswBuildDir)
+
+        return
+        
+    # --------------------------------------------------------------------------------
+
+    def updateProductionRelValLogs(self,workFlows):
+
+        print "\n--> going to copy Production RelVals logs to", self.webTargetDir, '... \n'
+        wwwProdDir = os.path.join( self.webTargetDir, 'prodRelVal')
+        self.copyLogs('prodRelVal.log' ,'.',wwwProdDir, False,self.cmsswBuildDir)
+        for wf in workFlows:
+            self.copyLogs('timingInfo.txt' ,'prodRelVal/wf/'+wf,os.path.join( wwwProdDir,'wf', wf), False,self.cmsswBuildDir)
+
+        return
+        
+    # --------------------------------------------------------------------------------
+
+    def updateBuildSetLogs(self,appType='fwlite'):
+
+        print "\n--> going to copy BuildSet logs to", self.webTargetDir, '... \n'
+        wwwBSDir = os.path.join( self.webTargetDir, 'BuildSet')
+	if self.doCopy: self.doCmd("rm -rf "+wwwBSDir+"/"+appType)
+        self.copyLogs(appType ,'BuildSet',wwwBSDir, True,self.cmsswBuildDir)
+        return
+        
+    # --------------------------------------------------------------------------------
+
+    def copyLogs(self, what, logSubDir, tgtDirIn, useTar=False, fromDir=None):
+
+        if not self.doCopy: return
+	tgtDir = tgtDirIn
+
+        if not os.path.exists(tgtDir) and not self.dryRun:
+            try:
+                os.makedirs(tgtDir)
+            except:
+                if not os.path.exists(tgtDir):
+                    print "ERROR: could not create tgtDir for logs: "+tgtDir
+                    print "       Log file "+what+" not copied"
+                    return
+
+        import stat
+	if not fromDir:
+	    fromDir = self.buildDir
+	
+	fromDir = os.path.join(fromDir, self.release, logSubDir)
+        fromFile = os.path.join(fromDir, what)
+        logSize = -1
+        if '*' not in fromFile: # don't try this for wildcards
+            try:
+                info = os.stat(fromFile)
+                logSize = info[stat.ST_SIZE]
+            except Exception, e:
+                print "WARNING: could not stat logFile "+fromFile+' got:'+str(e)
+                print "         probably a wildcard, ignoring erroor ... "
+                pass        # do nothing here, probably it was a wildcard.
+            
+        if logSize > 100 * 1024*1024 : # > 100 MB
+            print "ERROR: Log file too large for copying:", fromFile, ' is ', logSize/1024/1024, 'MB > 100 MB, file not copied.'
+            return
+        
+        cmd = "cp -r "+fromFile+' '+tgtDir+'/.'
+        if useTar:
+            cmd = "cd "+fromDir+"; tar cf - "+what+' | (cd '+tgtDir+'; tar xf - ) '
+
+        try:
+            self.doCmd(cmd)
+        except Exception, e:
+            print "Ignoring exception during copyLogs:", str(e)
+            pass
+            
+        return
+
+    # --------------------------------------------------------------------------------
+
+    def updateWeb(self, only):
+
+
+        return
+    
+
+
+# ================================================================================
+
+def usage():
+    print "usage:", os.path.basename(sys.argv[0]), " --buildDir <buildDir> --rel <release> --cycle <cycle> --stamp <timestamp> [--only <listOfThings>] [--dryRun]"
+    return
+
+# ================================================================================
+
+def main():
+
+    import getopt
+    options = sys.argv[1:]
+    try:
+        opts, args = getopt.getopt(options, 'h', 
+                                   ['help','buildDir=', 'release=', 'dryRun','only=','cycle=','stamp='])
+    except getopt.GetoptError, msg:
+        print msg
+        usage()
+        sys.exit(-2)
+
+    buildDir = None
+    rel      = None
+    dryRun   = False
+    only     = None
+    cycle    = None
+    stamp    = None
+    
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            usage()
+            sys.exit()
+
+        if o in ('--buildDir',):
+            buildDir = a
+
+        if o in ('--release',):
+            rel = a
+
+        if o in ('--dryRun',):
+            dryRun = True
+
+        if o in ('--only',):
+            only = a
+
+        if o in ('--cycle',):
+            cycle = a
+
+        if o in ('--stamp',):
+           stamp = a
+
+
+    if not cycle or not stamp or not rel or not buildDir:
+        usage()
+        sys.exit(-1)
+
+    lu = LogUpdater(buildDir)
+    lu.setRelease(rel, cycle, stamp)
+    if dryRun:
+        lu.setDryRun()
+
+    try:
+        lu.updateWeb(only)
+    except Exception, e:
+        print "ERROR: Caught exception during updating logs : " + str(e)
+
+    return
+
+# ================================================================================
+
+if __name__ == "__main__":
+
+    main()
