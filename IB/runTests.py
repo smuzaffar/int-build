@@ -74,6 +74,7 @@ class UnitTester(IBThreadBase):
         print "unitTest>Going to split log file from unit-tests in ", self.startDir
         tls = splitUnitTestLog.LogSplitter(self.startDir+"/unitTests-summary.log", True)
         tls.split(self.startDir+"/unitTests.log")
+        runCmd('cd '+self.startDir+'; zip -r unitTestLogs.zip unitTestLogs')
         return
     
     # --------------------------------------------------------------------------------
@@ -139,7 +140,7 @@ class AddOnTester(IBThreadBase):
             print "ERROR during addOnTests : caught exception: " + str(e)
             print "      cmd as of now   : '" + cmd + "'"
             pass
-
+        runCmd('cd '+self.startDir+'/addOnTests/logs; zip -r addOnTests.zip *.log')
         self.logger.updateAddOnTestsLogs()
         return
 
@@ -160,7 +161,12 @@ class PyRelVals(IBThreadBase):
         except Exception, e :
             print "runTests> ERROR during test PyReleaseValidation : caught exception: " + str(e)
             pass
-        self.logger.updateRelValMatrixLogs()
+        try:
+            runCmd("cd " + self.startDir + "/pyRelval ; zip -r pyRelValMatrixLogs.zip `find . -mindepth 2 -maxdepth 2 -name '*.log' -o -name 'cmdLog' -type f | sed -e 's|^./||'`")
+            self.logger.updateRelValMatrixLogs()
+        except Exception, e :
+            print "runTests> ERROR during test PyReleaseValidation : caught exception: " + str(e)
+            pass
         return
 
 # ================================================================================
@@ -414,32 +420,6 @@ class BuildFileDependencyCheck(IBThreadBase):
 
 # ================================================================================
 
-class ProductionRelValsTests(IBThreadBase):
-    def __init__(self, startDirIn, Logger, deps =[]):
-        IBThreadBase.__init__(self, deps)
-        self.startDir  = startDirIn
-        self.logger = Logger
-        return
-    
-    def run(self):
-        IBThreadBase.run(self)
-        script = scriptPath+'/prodRelVal.py'
-	if not os.path.exists(script):
-            print 'prodRelVal> ERROR: No such file: '+script
-	    return
-	cmd = 'cd '+self.startDir+'; ' + script
-	print 'prodRelVal> going to execute:',cmd
-	ret = runCmd(cmd+' 2>&1 > prodRelVal.log')
-        if ret != 0:
-             print "ERROR when running prodRelVal: cmd returned " + str(ret)
-
-        from prodRelVal import ProductionRelVal
-        relObj = ProductionRelVal(False)
-	self.logger.updateProductionRelValLogs(relObj.WorkFlows)
-        return
-
-# ================================================================================
-
 class CodeRulesChecker(IBThreadBase):
     def __init__(self, startDirIn, Logger, deps = []):
         IBThreadBase.__init__(self, deps)
@@ -641,10 +621,6 @@ class ReleaseTester(BuilderBase):
             print '\n'+80*'-'+' libcheck\n'
             self.threadList['libcheck'] = self.checkLibDeps()
 
-        if not only or 'prod' in only:
-            print '\n'+80*'-'+' prod \n'
-            self.threadList['prod'] = self.runProductionTests()
-
         if not only or 'geom' in only:
             print '\n'+80*'-'+' geom \n'
             self.threadList['geom'] = self.runGeomTests()
@@ -731,19 +707,6 @@ class ReleaseTester(BuilderBase):
 	        print "ERROR during test duplicateDictCheck : caught exception: " + str(e)
         self.logger.updateDupDictTestLogs()
 	return None
-    
-    # --------------------------------------------------------------------------------
-
-    def runProductionTests(self, deps = []):
-        print "prodRelVal> Going to run prodRelVal tests ... "
-        thrd = None
-        try:
-	    thrd = ProductionRelValsTests( self.cmsswBuildDir,self.logger, deps )
-            thrd.start()
-        except Exception, e :
-            print "prodRelVal>ERROR during run prodRelVal : caught exception: " + str(e)
-            pass
-        return thrd
     
     # --------------------------------------------------------------------------------
 
@@ -897,6 +860,8 @@ class ReleaseTester(BuilderBase):
             return None
         print "runTests> Going to run python relvals"
         cmd = scriptPath+'/runPyRelVal.py --nproc 8 '
+        if '_THREADED_' in os.environ['CMSSW_VERSION']:
+            self.RelValArgs = self.RelValArgs + " --command '--customise FWCore/Concurrency/dropNonMTSafe.dropNonMTSafe '"
         if self.RelValArgs: cmd += ' --args "'+self.RelValArgs+'" '
         thrd = None
         try:

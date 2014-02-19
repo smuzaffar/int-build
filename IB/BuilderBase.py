@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, time
+import os, sys, time, re
 from os.path import dirname
 from datetime import datetime
 
@@ -72,6 +72,7 @@ class BuilderBase(object):
     def rel2Stamp(self, rel):
         date = rel.split("_X_", 1)[1]
         self.timeStamp = date
+	date = re.sub(".*_","",date)
         self.stamp = datetime.fromtimestamp(time.mktime(time.strptime(date, "%Y-%m-%d-%H00"))).strftime("%a-%H").lower()
         return
     # --------------------------------------------------------------------------------

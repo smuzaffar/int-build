@@ -176,6 +176,8 @@ def setDefaults(cycle, tcTag=None):
       Configuration[cycle]['RelValArgs'] += " --command '-n 1'"
   if cycle.startswith('4.2'):
     Configuration[cycle]['RelValArgs'] = Configuration[cycle]['RelValArgs'].replace("--useInput all","")
+  if cycle.startswith('7.1'):
+    Configuration[cycle]['RelValArgs'] += " --das-options '--cache " + environ["CMSBUILD_BUILD_DIR"] + "/das-cache.file' "
 
 ####################################################################################
 # ---------------------------------------------------------------------------------#
