@@ -129,7 +129,12 @@ class LogFileAnalyzer(object):
 
         except Exception, e:
             print "Error when reading tagFile:", str(e)
-
+            print "Getting package list from src directory"
+            import glob
+            srcdir = os.path.dirname(self.pkgsList)+"/"
+            for pkg in glob.glob(srcdir+'*/*'):
+                pkg = pkg.replace(srcdir,"")
+                self.tagList[pkg] = ""
         return
         
     def analyze(self):

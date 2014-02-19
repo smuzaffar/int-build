@@ -54,25 +54,11 @@ class LogUpdater(BuilderBase):
         print "\n--> going to copy unit test logs to", self.webTargetDir, '... \n'
         # copy back the test and relval logs to the install area
         # check size first ... sometimes the log _grows_ to tens of GB !!
-        testLogs = ['unitTests.log', 'unitTests-summary.log','unitTestResults.pkl']
+        testLogs = ['unitTestLogs.zip','unitTests-summary.log','unitTestResults.pkl']
         for tl in testLogs:
             self.copyLogs(tl, '.', self.webTargetDir,False,self.cmsswBuildDir)
-            self.copyLogs(tl, '.', os.path.join( self.webTargetDir, 'testLogs'),False,self.cmsswBuildDir)
-
-        self.updateSplitUnitTestLogs()
 	return
 
-    # --------------------------------------------------------------------------------
-
-    def updateSplitUnitTestLogs(self):
-
-        print "\n--> going to copy individual unit test logs to", self.webTargetDir, '... \n'
-        subDir = 'unitTestLogs'
-
-        self.copyLogs('[A-Z]*/*/unitTest.log'  , subDir, os.path.join(self.webTargetDir, 'unitTestLogs'), True,self.cmsswBuildDir)
-
-        return
-        
      # --------------------------------------------------------------------------------
 
     def updateGeomTestLogs(self):
@@ -123,7 +109,7 @@ class LogUpdater(BuilderBase):
 
         print "\n--> going to copy pyrelval matrix logs to", self.webTargetDir, '... \n'
         subDir = 'pyRelval/'
-        self.copyLogs('*/*[lL]og'  , subDir, os.path.join(self.webTargetDir, 'pyRelValMatrixLogs/run'), True,self.cmsswBuildDir)
+        self.copyLogs('pyRelValMatrixLogs.zip' , subDir, self.webTargetDir,  True,self.cmsswBuildDir)
         self.copyLogs('runall*.log', subDir, os.path.join(self.webTargetDir, 'pyRelValMatrixLogs/run'),False,self.cmsswBuildDir)
         self.copyLogs('*.pkl'      , subDir, os.path.join(self.webTargetDir, 'pyRelValMatrixLogs/run'),False,self.cmsswBuildDir)
 
@@ -135,7 +121,8 @@ class LogUpdater(BuilderBase):
 
         print "\n--> going to copy addOn logs to", self.webTargetDir, '... \n'
         self.copyLogs('addOnTests.log' ,'.',self.webTargetDir, False,self.cmsswBuildDir)
-        self.copyLogs('*' ,'addOnTests/logs',os.path.join(self.webTargetDir, 'addOnTests/logs'), True,self.cmsswBuildDir)
+        self.copyLogs('addOnTests.zip' ,'addOnTests/logs',self.webTargetDir, True,self.cmsswBuildDir)
+        self.copyLogs('addOnTests.pkl' ,'addOnTests/logs',os.path.join(self.webTargetDir, 'addOnTests/logs'), True,self.cmsswBuildDir)
 
         return
         
@@ -204,10 +191,6 @@ class LogUpdater(BuilderBase):
                 print "         probably a wildcard, ignoring erroor ... "
                 pass        # do nothing here, probably it was a wildcard.
             
-        if logSize > 100 * 1024*1024 : # > 100 MB
-            print "ERROR: Log file too large for copying:", fromFile, ' is ', logSize/1024/1024, 'MB > 100 MB, file not copied.'
-            return
-        
         cmd = "cp -r "+fromFile+' '+tgtDir+'/.'
         if useTar:
             cmd = "cd "+fromDir+"; tar cf - "+what+' | (cd '+tgtDir+'; tar xf - ) '
