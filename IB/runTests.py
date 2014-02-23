@@ -86,10 +86,7 @@ class UnitTester(IBThreadBase):
             return
         try:
             cmd = "cd "+self.startDir+"; sed -i -e 's|testing.log; *$(CMD_rm)  *-f  *$($(1)_objdir)/testing.log;|testing.log;|;s|test $(1) had ERRORS\") *\&\&|test $(1) had ERRORS\" >> $($(1)_objdir)/testing.log) \&\&|' config/SCRAM/GMake/Makefile.rules; "
-            if "CMSSW_4_" in self.startDir:
-              cmd += 'scram b -f -k -j 3 runtests >unitTests1.log 2>&1 '
-            else:
-              cmd += 'scram b -f -k -j 3 unittests >unitTests1.log 2>&1 '
+            cmd += 'scram b -f -k -j 3 unittests >unitTests1.log 2>&1 '
             print 'unitTest> Going to run '+cmd
             ret = runCmd(cmd)
             if ret != 0:
