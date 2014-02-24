@@ -177,7 +177,7 @@ def setDefaults(cycle, tcTag=None):
   if cycle.startswith('4.2'):
     Configuration[cycle]['RelValArgs'] = Configuration[cycle]['RelValArgs'].replace("--useInput all","")
   if cycle.startswith('7.1'):
-    Configuration[cycle]['RelValArgs'] += " --das-options '--cache " + environ["CMSBUILD_BUILD_DIR"] + "/das-cache.file' "
+    Configuration[cycle]['RelValArgs'] += "--prefix 'timeout 3600 ' --das-options '--cache " + environ["CMSBUILD_BUILD_DIR"] + "/das-cache.file' "
 
 ####################################################################################
 # ---------------------------------------------------------------------------------#
