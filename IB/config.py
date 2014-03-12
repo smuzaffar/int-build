@@ -178,7 +178,7 @@ def setDefaults(cycle, tcTag=None):
     Configuration[cycle]['RelValArgs'] = Configuration[cycle]['RelValArgs'].replace("--useInput all","")
   if cycle.startswith('7.1'):
     Configuration[cycle]['RelValArgs'] += " --command \\\"--prefix 'timeout 3600 '\\\" --das-options '--cache " + environ["CMSBUILD_BUILD_DIR"] + "/das-cache.file' "
-  if cycle.startswith('6.2.SLHC'):
+  if environ['CMSSW_VERSION'].startswith('CMSSW_6_2_X_SLHC_'):
     Configuration[cycle]['RelValArgs'] += " --command \\\"--prefix 'timeout 3600 '\\\" -w upgrade -l 3300,3400,4100,4400,40001,50002,60002,60001,4502,4500,5001,15001,50001 "
 
 ####################################################################################
