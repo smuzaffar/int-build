@@ -23,7 +23,7 @@ class BuilderBase(object):
         import config
 
         self._readTimeStamp = False
-        actualVersion = environ.get("CMSSW_PATCH_VERSION", environ.get("CMSSW_VERSION", None))
+        actualVersion = os.environ.get("CMSSW_PATCH_VERSION", os.environ.get("CMSSW_VERSION", None))
         if actualVersion and os.environ.has_key("VO_CMS_SW_DIR"):
             self.rel2Stamp(actualVersion)
             self.topBuildDir = dirname(os.environ["VO_CMS_SW_DIR"])
