@@ -125,12 +125,7 @@ class AddOnTester(IBThreadBase):
     def run(self):
         IBThreadBase.run(self)
         try:
-            script = self.startDir+'/bin/'+os.environ['SCRAM_ARCH']+'/addOnTests.py'
-            if not os.path.exists(script) :
-                print ' ... no addOnTests.py in release, checks not run ... '
-                return
-
-            cmd  = 'cd '+self.startDir+'; rm -rf addOnTests; '+script+' 2>&1 >addOnTests.log '
+            cmd  = 'cd '+self.startDir+'; rm -rf addOnTests; addOnTests.py 2>&1 >addOnTests.log '
             print 'addOnTests: in: ', os.getcwd()
             print ' ... going to execute:',cmd
             ret = runCmd(cmd)
