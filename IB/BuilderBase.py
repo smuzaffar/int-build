@@ -23,9 +23,8 @@ class BuilderBase(object):
         import config
 
         self._readTimeStamp = False
-        actualVersion = os.environ.get("CMSSW_PATCH_VERSION", os.environ.get("CMSSW_VERSION", None))
-        if actualVersion and os.environ.has_key("VO_CMS_SW_DIR"):
-            self.rel2Stamp(actualVersion)
+        if os.environ.has_key("CMSSW_VERSION") and os.environ.has_key("VO_CMS_SW_DIR"):
+            self.rel2Stamp(os.environ["CMSSW_VERSION"])
             self.topBuildDir = dirname(os.environ["VO_CMS_SW_DIR"])
         elif os.environ.has_key('CMSINTBLD_RCDIR'):
             self.updateTimeStamp (os.environ['CMSINTBLD_RCDIR'], False)
@@ -48,6 +47,10 @@ class BuilderBase(object):
         self.cmsBuildDir = os.path.join(self.topBuildDir, "cms")
         self.cmsswBuildDir = os.path.join(self.cmsBuildDir, self.plat, "cms", "cmssw")
         self.cmsswBuildLogDir = os.path.join(self.cmsBuildDir, "BUILD", self.plat, "cms", "cmssw")
+	if os.environ.has_key("CMSBUILD_BUILD_DIR"):
+            self.cmsswBuildLogDir = dirname(os.environ["CMSBUILD_BUILD_DIR"])
+	if os.environ.has_key("CMSSW_BASE"):
+            self.cmsswBuildDir = dirname(os.environ["CMSSW_BASE"])
         self.cmsinit = "source "+os.path.join(self.cmsBuildDir, "cmsset_default.sh")
         self.cmsenv = self.cmsinit+"; eval `scram run -sh`"
 
