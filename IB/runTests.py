@@ -855,8 +855,6 @@ class ReleaseTester(BuilderBase):
             return None
         print "runTests> Going to run python relvals"
         cmd = scriptPath+'/runPyRelVal.py --nproc 8 '
-        if '_THREADED_' in os.environ['CMSSW_VERSION']:
-            self.RelValArgs = self.RelValArgs + " --command '--customise FWCore/Concurrency/dropNonMTSafe.dropNonMTSafe '"
         if self.RelValArgs: cmd += ' --args "'+self.RelValArgs+'" '
         thrd = None
         try:

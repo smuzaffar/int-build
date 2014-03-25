@@ -172,12 +172,15 @@ def setDefaults(cycle, tcTag=None):
   Configuration[cycle] = deepcopy(defaultConfiguration)
   Configuration[cycle]['releaseTag'] = tcTag
   Configuration[cycle]['tagCollTag'] = tcTag
+  threaded = ""
+  if '_THREADED_' in environ['CMSSW_VERSION']:
+      threaded = " --customise FWCore/Concurrency/dropNonMTSafe.dropNonMTSafe "
   if (platform == "darwin") and not re.match('CMSSW_([0-4]_\d+|5_[0-1])_.*',tcTag):
-      Configuration[cycle]['RelValArgs'] += " --command '-n 1'"
+      Configuration[cycle]['RelValArgs'] += " --command '-n 1 "+threaded+"'"
   if cycle.startswith('4.2'):
     Configuration[cycle]['RelValArgs'] = Configuration[cycle]['RelValArgs'].replace("--useInput all","")
   if cycle.startswith('7.1'):
-    Configuration[cycle]['RelValArgs'] += " --command \\\"--prefix 'timeout 3600 '\\\" --das-options '--cache " + environ["CMSBUILD_BUILD_DIR"] + "/das-cache.file' "
+    Configuration[cycle]['RelValArgs'] += " --command \\\""+threaded+" --prefix 'timeout 3600 '\\\" --das-options '--cache " + environ["CMSBUILD_BUILD_DIR"] + "/das-cache.file' "
   if environ['CMSSW_VERSION'].startswith('CMSSW_6_2_X_SLHC_'):
     Configuration[cycle]['RelValArgs'] += " -w upgrade -l 10000,10200,10400,11200,11400,11600,11800,12000,12800,13000 "
 
