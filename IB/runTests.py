@@ -84,9 +84,15 @@ class UnitTester(IBThreadBase):
         if platform.system() == 'Darwin':
             print 'unitTest> Skipping unit tests for MacOS'
             return
+        baseReleaseTestPath=""
+        try:
+            if os.path.exists(os.path.join(self.startDir,".SCRAM",os.environ['SCRAM_ARCH'],"InstalledTools/cmssw")):
+                err, baseReleaseTestPath = getstatusoutput ("cd "+self.startDir+"; scram tool info cmssw 2>&1 | grep CMSSW_BASE | sed 's|CMSSW_BASE=|PATH=|'")
+                if baseReleaseTestPath: baseReleaseTestPath+="/test/"+os.environ['SCRAM_ARCH']+":$PATH "
+        except Exception, e : pass
         try:
             cmd = "cd "+self.startDir+"; sed -i -e 's|testing.log; *$(CMD_rm)  *-f  *$($(1)_objdir)/testing.log;|testing.log;|;s|test $(1) had ERRORS\") *\&\&|test $(1) had ERRORS\" >> $($(1)_objdir)/testing.log) \&\&|' config/SCRAM/GMake/Makefile.rules; "
-            cmd += 'scram b -f -k -j 3 unittests >unitTests1.log 2>&1 '
+            cmd += baseReleaseTestPath+' scram b -f -k -j 3 unittests >unitTests1.log 2>&1 '
             print 'unitTest> Going to run '+cmd
             ret = runCmd(cmd)
             if ret != 0:
