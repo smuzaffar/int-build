@@ -84,15 +84,20 @@ class UnitTester(IBThreadBase):
         if platform.system() == 'Darwin':
             print 'unitTest> Skipping unit tests for MacOS'
             return
-        baseReleaseTestPath=""
         try:
             if os.path.exists(os.path.join(self.startDir,".SCRAM",os.environ['SCRAM_ARCH'],"InstalledTools/cmssw")):
-                err, baseReleaseTestPath = getstatusoutput ("cd "+self.startDir+"; scram tool info cmssw 2>&1 | grep CMSSW_BASE | sed 's|CMSSW_BASE=|PATH=|'")
-                if baseReleaseTestPath: baseReleaseTestPath+="/test/"+os.environ['SCRAM_ARCH']+":$PATH "
+                cmd = "cd "+self.startDir+"; eval `scram tool info cmssw 2>&1 | grep CMSSW_BASE=`"
+                cmd += "; find src -mindepth 1 -maxdepth 1 -type d | xargs -I '{}' find '{}' -maxdepth 1 -mindepth 1 -type d > localpkgs.txt; echo Local Packages; cat localpkgs.txt"
+                cmd += "; grep SCRAMSTORENAME_TEST tmp/"+os.environ['SCRAM_ARCH']+"/MakeData/DirCache.mk | grep _INIT_FUNC > alltests.txt"
+                cmd += "; for pkg in `cat localpkgs.txt`; do grep -v \"$pkg/\" alltests.txt > basetests.txt; mv basetests.txt alltests.txt; done"
+                cmd += "; BASE_TESTS=`cat alltests.txt | sed -e 's|_INIT_FUNC.*||'`"
+                cmd += "; echo Tests from Release: $BASE_TESTS; for t in $BASE_TESTS ; do ln -s $CMSSW_BASE/test/"+os.environ['SCRAM_ARCH']+"/$t test/"+os.environ['SCRAM_ARCH']+"/$t; done"
+                print ">>Running command to create test symlinks\n>> ",cmd
+                err, cmd = getstatusoutput(cmd)
         except Exception, e : pass
         try:
             cmd = "cd "+self.startDir+"; sed -i -e 's|testing.log; *$(CMD_rm)  *-f  *$($(1)_objdir)/testing.log;|testing.log;|;s|test $(1) had ERRORS\") *\&\&|test $(1) had ERRORS\" >> $($(1)_objdir)/testing.log) \&\&|' config/SCRAM/GMake/Makefile.rules; "
-            cmd += baseReleaseTestPath+' scram b -f -k -j 3 unittests >unitTests1.log 2>&1 '
+            cmd += 'scram b -f -k -j 3 unittests >unitTests1.log 2>&1 '
             print 'unitTest> Going to run '+cmd
             ret = runCmd(cmd)
             if ret != 0:
