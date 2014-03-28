@@ -696,11 +696,7 @@ class ReleaseTester(BuilderBase):
 
     def runDuplicateDictCheck(self, deps = []):
         print "runDuplicateDictTests> Going to run duplicateReflexLibrarySearch.py ... "
-        script = self.cmsswBuildDir+'/bin/'+os.environ['SCRAM_ARCH']+'/duplicateReflexLibrarySearch.py'
-	if not os.path.exists(script) :
-            print ' ... no duplicateReflexLibrarySearch.py in release, checks not run ... '
-            return None
-
+	script = 'duplicateReflexLibrarySearch.py'
 	script = 'python '+script
 	if not os.path.exists(self.cmsswBuildDir+'/bin/'+os.environ['SCRAM_ARCH']+'/XML2Python.py'):
 	    script = 'export PYTHONPATH='+scriptPath+'; '+script
