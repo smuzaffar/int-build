@@ -168,7 +168,7 @@ class PyRelVals(IBThreadBase):
             print "runTests> ERROR during test PyReleaseValidation : caught exception: " + str(e)
             pass
         try:
-            runCmd("cd " + self.startDir + "/pyRelval ; zip -r pyRelValMatrixLogs.zip `find . -mindepth 2 -maxdepth 2 -name '*.log' -o -name 'cmdLog' -type f | sed -e 's|^./||'`")
+            runCmd("cd " + self.startDir + "/pyRelval ; zip -r pyRelValMatrixLogs.zip `find . -mindepth 2 -maxdepth 2 -name '*.log' -o -name '*.xml' -o -name 'cmdLog' -type f | sed -e 's|^./||'`")
             self.logger.updateRelValMatrixLogs()
         except Exception, e :
             print "runTests> ERROR during test PyReleaseValidation : caught exception: " + str(e)
