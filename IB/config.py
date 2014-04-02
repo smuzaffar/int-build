@@ -180,7 +180,7 @@ def setDefaults(cycle, tcTag=None):
   if cycle.startswith('4.2'):
     Configuration[cycle]['RelValArgs'] = Configuration[cycle]['RelValArgs'].replace("--useInput all","")
   if cycle.startswith('7.1'):
-    Configuration[cycle]['RelValArgs'] += " --job-reports --command \\\""+threaded+" --customise Validation/Performance/TimeMemorySummary.customise --prefix 'timeout 3600 '\\\" --das-options '--cache " + environ["CMSBUILD_BUILD_DIR"] + "/das-cache.file' "
+    Configuration[cycle]['RelValArgs'] += " --job-reports --command \\\""+threaded+" --customise Validation/Performance/TimeMemorySummary.customiseWithTimeMemorySummary --prefix 'timeout 3600 '\\\" --das-options '--cache " + environ["CMSBUILD_BUILD_DIR"] + "/das-cache.file' "
   if environ['CMSSW_VERSION'].startswith('CMSSW_6_2_X_SLHC_'):
     Configuration[cycle]['RelValArgs'] += " -w upgrade -l 10000,10200,10400,11200,11400,11600,11800,12000,12800,13000 "
 
