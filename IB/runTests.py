@@ -697,12 +697,8 @@ class ReleaseTester(BuilderBase):
     def runDuplicateDictCheck(self, deps = []):
         print "runDuplicateDictTests> Going to run duplicateReflexLibrarySearch.py ... "
 	script = 'duplicateReflexLibrarySearch.py'
-	script = 'python '+script
-	if not os.path.exists(self.cmsswBuildDir+'/bin/'+os.environ['SCRAM_ARCH']+'/XML2Python.py'):
-	    script = 'export PYTHONPATH='+scriptPath+'; '+script
-	    
 	for opt in ['dup', 'lostDefs', 'edmPD']:
-            cmd = script+' --dir '+ self.cmsswBuildDir +'/src --'+opt+' 2>&1 >dupDict-'+opt+'.log'
+            cmd = script+' --'+opt+' 2>&1 >dupDict-'+opt+'.log'
 	    try:
                 self.doCmd(cmd,self.dryRun,self.cmsswBuildDir)
 	    except Exception, e :
