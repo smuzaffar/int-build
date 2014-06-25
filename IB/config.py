@@ -187,7 +187,7 @@ def setDefaults(cycle, tcTag=None):
     if "ROOT6" in cycle:
       Configuration[cycle]['RelValArgs'] += " -j 6 "
     if "THREADED" in cycle:
-      Configuration[cycle]['RelValArgs'] += " -j 4 "
+      Configuration[cycle]['RelValArgs'] += " -j 6 "
   if environ['CMSSW_VERSION'].startswith('CMSSW_6_2_X_SLHC_'):
     Configuration[cycle]['RelValArgs'] += " -w upgrade -l 10000,10200,10400,11200,11400,11600,11800,12000,12800,13000 "
 
