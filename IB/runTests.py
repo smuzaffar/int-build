@@ -890,7 +890,7 @@ class ReleaseTester(BuilderBase):
     def genReferenceManual(self, deps = []):
         try:
             if str(os.environ['SCRAM_ARCH']) == 'slc5_amd64_gcc462':
-                cmd = 'scram b doxygen 2>&1 > genReferenceManual.log ;'
+                cmd = 'scram b -f doxygen 2>&1 > genReferenceManual.log ;'
                 cmd += 'chmod +w doc ;'
                 cmd += 'scp -r doc cmsbuild@vocms12:/data/doxygen/'+self.relTag+' ;'
                 cmd += 'scp '+self.relTag+'.index cmsbuild@vocms12:/data/doxygen/'+self.relTag+'/ ;'
