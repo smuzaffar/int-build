@@ -186,6 +186,9 @@ def setDefaults(cycle, tcTag=None):
     Configuration[cycle]['RelValArgs'] += " --job-reports --command \\\""+threaded+" --customise Validation/Performance/TimeMemorySummary.customiseWithTimeMemorySummary " + prefix + " \\\" --das-options '--cache " + environ["CMSBUILD_BUILD_DIR"] + "/das-cache.file' "
     if "ROOT6" in cycle:
       Configuration[cycle]['RelValArgs'] += " -j 6 "
+    if "ASAN" in cycle:
+      import multiprocessing
+      Configuration[cycle]['RelValArgs'] += " -j %s " % (multiprocessing.cpu_count() / 2,)
     if "THREADED" in cycle:
       Configuration[cycle]['RelValArgs'] += " -j 6 "
   if environ['CMSSW_VERSION'].startswith('CMSSW_6_2_X_SLHC_'):
