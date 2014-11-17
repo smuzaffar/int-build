@@ -370,7 +370,7 @@ class ReleaseProductsDump(IBThreadBase):
 	
         rperrFileName = os.path.join( logDir, 'relProducts.err')
         
-        cmd = 'cd '+self.startDir+'; ./bin/'+os.environ['SCRAM_ARCH']+'/RelProducts.pl > ReleaseProducts.list  2> '+ rperrFileName
+        cmd = 'cd '+self.startDir+'; RelProducts.pl > ReleaseProducts.list  2> '+ rperrFileName
         try:
             ret = runCmd(cmd)
 	    if ret != 0:
@@ -437,7 +437,7 @@ class CodeRulesChecker(IBThreadBase):
     def run(self):
         IBThreadBase.run(self)
         try:
-            script = self.startDir+'/bin/'+os.environ['SCRAM_ARCH']+'/cmsCodeRulesChecker.py'
+            script = 'cd '+self.startDir+'; cmsCodeRulesChecker.py'
 	    if not os.path.exists(script) :
                 print ' ... no cmsCodeRulesChecker.py in release, checks not run ... '
                 return
