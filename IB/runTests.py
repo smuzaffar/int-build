@@ -401,7 +401,7 @@ class BuildFileDependencyCheck(IBThreadBase):
         if not os.path.exists(depDir): os.makedirs(depDir)
 	depFile = os.path.join(depDir, 'depsViolations.txt')
        
-        cmd = 'cd '+self.startDir+'; ./bin/'+os.environ['SCRAM_ARCH']+'/ReleaseDepsChecks.pl --detail > '+depFile+'  2> '+ dverrFileName
+        cmd = 'cd '+self.startDir+'; ReleaseDepsChecks.pl --detail > '+depFile+'  2> '+ dverrFileName
         try:
             ret = runCmd(cmd)
 	    if ret != 0:
