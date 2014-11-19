@@ -418,10 +418,21 @@ class BuildFileDependencyCheck(IBThreadBase):
             print "Caught ActionError when running splitDepViolationLog.py: " + str(e)
             pass
 
+	bdir = os.path.join(depDir,"depViolationLogs")
+	try:
+	  import fnmatch
+	  for root, dirnames, filenames in os.walk(bdir):
+	    for filename in fnmatch.filter(filenames, 'depViolation.log'):
+	      pkg = "/".join(root.replace(bdir,"").split('/')[1:3])
+	      log = os.path.join(bdir, pkg, "log.txt")
+	      ret = runCmd("touch "+log+"; cat "+os.path.join(root, filename)+" >> "+log)
+	except ActionError, e:
+	  pass
+
 	self.logger.updateLogFile(self.startDir+"/depViolationSummary.pkl","testLogs")
 	self.logger.updateLogFile(dverrFileName, "logs/"+os.environ['SCRAM_ARCH'])
 	self.logger.updateLogFile(depFile, "etc/dependencies/")
-	self.logger.updateLogFile(self.startDir+"/etc/dependencies/depViolationLogs", "etc/dependencies/")
+	self.logger.updateLogFile(bdir, "etc/dependencies/")
 	return
 
 
