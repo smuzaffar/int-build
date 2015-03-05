@@ -175,6 +175,8 @@ def setDefaults(cycle, tcTag=None):
   threaded = ""
   if '_THREADED_' in environ['CMSSW_VERSION']:
       threaded = " --customise FWCore/Concurrency/dropNonMTSafe.dropNonMTSafe "
+  if '_ROOT6_' in environ['CMSSW_VERSION']:
+      threaded = " --customise FWCore/Concurrency/dropNonMTSafe.dropNonMTSafe "
   if (platform == "darwin") and not re.match('CMSSW_([0-4]_\d+|5_[0-1])_.*',tcTag):
       Configuration[cycle]['RelValArgs'] += " --command '-n 1 "+threaded+"'"
   if cycle.startswith('4.2'):
