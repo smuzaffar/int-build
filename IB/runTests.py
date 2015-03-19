@@ -623,9 +623,9 @@ class ReleaseTester(BuilderBase):
             print '\n'+80*'-'+' FWLite BuildSet\n'
             self.threadList['fwbuildset'] = self.runFWLiteBuildSet(self.getDepThreads(['ignominy']))
 
-        if not only or 'onlbuildset' in only:
-            print '\n'+80*'-'+' Online BuildSet\n'
-            self.threadList['onlbuildset'] = self.runOnlineBuildSet(self.getDepThreads(['ignominy']))
+        #if not only or 'onlbuildset' in only:
+        #    print '\n'+80*'-'+' Online BuildSet\n'
+        #    self.threadList['onlbuildset'] = self.runOnlineBuildSet(self.getDepThreads(['ignominy']))
 
         if not only or 'dqmoffline' in only:
             print '\n'+80*'-'+' DQMOfflineTest \n'
