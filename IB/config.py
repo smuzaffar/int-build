@@ -193,7 +193,7 @@ def setDefaults(cycle, tcTag=None):
       Configuration[cycle]['RelValArgs'] += " -j %s " % (multiprocessing.cpu_count() / 2,)
     if "THREADED" in cycle:
       Configuration[cycle]['RelValArgs'] += " -j 6 "
-  if environ['CMSSW_VERSION'].startswith('CMSSW_6_2_X_SLHC_'):
+  if re.match( '^CMSSW_6_2_X_SLHC_|^CMSSW_6_2_SLHCDEV_X_', environ['CMSSW_VERSION'] ):
     Configuration[cycle]['RelValArgs'] += " -w upgrade -l 10000,10200,10400,11200,11400,11600,11800,12000,12800,13000 "
 
 ####################################################################################
