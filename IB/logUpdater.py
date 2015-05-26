@@ -200,7 +200,15 @@ class LogUpdater(BuilderBase):
         except Exception, e:
             print "Ignoring exception during copyLogs:", str(e)
             pass
-            
+
+        tgtDir = tgtDir.replace("/afs/cern.ch/cms/sw/ReleaseCandidates/","")
+	cmd ="ssh cmsbuild@cmssdt01 mkdir -p /data/sdt/buildlogs/"+tgtDir+"; scp -r "+fromFile+" cmsbuild@cmssdt01:/data/sdt/buildlogs/"+tgtDir+"/"
+        try:
+            self.doCmd(cmd)
+        except Exception, e:
+            print "Ignoring exception during copyLogs:", str(e)
+            pass
+
         return
 
     # --------------------------------------------------------------------------------
