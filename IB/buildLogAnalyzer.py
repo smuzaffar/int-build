@@ -354,7 +354,7 @@ class LogFileAnalyzer(object):
             newLine = line.replace('&','&amp;') # do this first to not escape it again in the next subs
             newLine = newLine.replace('<','&lt;').replace('>','&gt;')
             if lineNo in pkg.errLines.keys():
-                newLine = '<class='+self.styleClass[pkg.errLines[lineNo]]+'> <b> '+line+' </b></class>'
+                newLine = '<class='+self.styleClass[pkg.errLines[lineNo]]+'> <b> '+newLine+' </b></class>'
             htmlFile.write(newLine.decode('ascii','ignore'))
         htmlFile.write("</pre>\n")    
         htmlFile.write("</body>\n")    
