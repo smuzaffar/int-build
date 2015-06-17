@@ -163,8 +163,20 @@ class PyRelVals(IBThreadBase):
     
     def run(self):
         IBThreadBase.run(self)
+        experimental = re.match("^slc7_", os.environ["SCRAM_ARCH"]) is not None
+        if(experimental): # Enable experimental partial logging
+            self.cmd = ''
+            from runPyRelValThread import PyRelValsThread
+            pyrelval = PyRelValsThread(8, 'pyRelval')
         try:
             runCmd('cd '+self.startDir+'; rm -rf pyRelval; mkdir pyRelval; cd pyRelval; '+ self.cmd + ' 2>&1 > runall.log')
+            if(experimental): # Enable experimental partial logging
+                add_arg_list = self.cmd.split("--args ")
+                try:
+                    add_arg = add_arg_list[1]
+                except IndexError:
+                    add_arg = ""
+                pyrelval.startWorkflows(self.logger, add_arg)
         except Exception, e :
             print "runTests> ERROR during test PyReleaseValidation : caught exception: " + str(e)
             pass
@@ -531,17 +543,17 @@ class ReleaseTester(BuilderBase):
         os.environ['STAGE_HOST']='castorcms'
         os.environ['STAGER_TRACE']='3'
     
-	self.doInstall=doInstall
-	self.buildDir = buildDir
-	self.appset = appset
-	self.updateTimeStamp(self.buildDir)
+    	self.doInstall=doInstall
+    	self.buildDir = buildDir
+    	self.appset = appset
+    	self.updateTimeStamp(self.buildDir)
+    	
+    	self.cmsswBuildDir = releaseDir
+    	self.release = os.path.basename(releaseDir)
+    	self.relTag = self.release
+    	self.relCycle = self.release.replace("CMSSW_","").split("_X_",1)[0].replace("_",".")
 	
-	self.cmsswBuildDir = releaseDir
-	self.release = os.path.basename(releaseDir)
-	self.relTag = self.release
-	self.relCycle = self.release.replace("CMSSW_","").split("_X_",1)[0].replace("_",".")
-	
-	day,hour = self.stamp.split('-')
+        day,hour = self.stamp.split('-')
         
         self.threadList = {}
         self.maxThreads = 2 # one for unit-tests, one for addOnTests
@@ -873,10 +885,10 @@ class ReleaseTester(BuilderBase):
         if self.RelValArgs: cmd += ' --args "'+self.RelValArgs+'" '
         thrd = None
         try:
-            thrd = PyRelVals(self.cmsswBuildDir, self.logger,cmd , deps)
-            thrd.start()
+          thrd = PyRelVals(self.cmsswBuildDir, self.logger,cmd , deps)
+          thrd.start()
         except Exception, e :
-            print "ERROR during runAddOnTests : caught exception: " + str(e)
+            print "ERROR during pyRelVal : caught exception: " + str(e)
             pass
         return thrd
 
