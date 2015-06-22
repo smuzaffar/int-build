@@ -170,10 +170,8 @@ class LogUpdater(BuilderBase):
             try:
                 os.makedirs(tgtDir)
             except:
-                if not os.path.exists(tgtDir):
-                    print "ERROR: could not create tgtDir for logs: "+tgtDir
-                    print "       Log file "+what+" not copied"
-                    return
+                print "ERROR: could not create tgtDir for logs: "+tgtDir
+                pass
 
         import stat
 	if not fromDir:
