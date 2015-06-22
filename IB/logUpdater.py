@@ -202,8 +202,8 @@ class LogUpdater(BuilderBase):
             pass
 
         tgtDir = tgtDir.replace("/afs/cern.ch/cms/sw/ReleaseCandidates/","")
-        ssh_opt='-o CheckHostIP=no -o ConnectTimeout=60 -o ConnectionAttempts=5 -o StrictHostKeyChecking=no -o BatchMode=yes -o PasswordAuthentication=no'
-	cmssdt_ser="cmsbuild@cmssdt01.cern.ch"
+        ssh_opt="-o CheckHostIP=no -o ConnectTimeout=60 -o ConnectionAttempts=5 -o StrictHostKeyChecking=no -o BatchMode=yes -o PasswordAuthentication=no"
+        cmssdt_ser="cmsbuild@cmssdt01.cern.ch"
         cmd ="ssh -Y "+ssh_opt+" "+cmssdt_ser+" mkdir -p /data/sdt/buildlogs/"+tgtDir+"; scp "+ssh_opt+" -r "+fromFile+" "+cmssdt_ser+":/data/sdt/buildlogs/"+tgtDir+"/"
         try:
             self.doCmd(cmd)
