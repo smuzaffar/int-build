@@ -165,17 +165,17 @@ class PyRelVals(IBThreadBase):
         IBThreadBase.run(self)
         experimental = re.match("^slc7_", os.environ["SCRAM_ARCH"]) is not None
         if(experimental): # Enable experimental partial logging
-            self.cmd = ''
             from runPyRelValThread import PyRelValsThread
             pyrelval = PyRelValsThread(8, 'pyRelval')
         try:
-            runCmd('cd '+self.startDir+'; rm -rf pyRelval; mkdir pyRelval; cd pyRelval; '+ self.cmd + ' 2>&1 > runall.log')
             if(experimental): # Enable experimental partial logging
-                add_arg_list = self.cmd.split("--args ")
                 try:
-                    add_arg = add_arg_list[1]
+                    add_arg = self.cmd.split("--args ")[1]
                 except IndexError:
                     add_arg = ""
+                self.cmd = 'true'
+            runCmd('cd '+self.startDir+'; rm -rf pyRelval; mkdir pyRelval; cd pyRelval; '+ self.cmd + ' 2>&1 > runall.log')
+            if(experimental): # Enable experimental partial logging
                 pyrelval.startWorkflows(self.logger, add_arg)
         except Exception, e :
             print "runTests> ERROR during test PyReleaseValidation : caught exception: " + str(e)
